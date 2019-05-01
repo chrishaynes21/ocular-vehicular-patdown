@@ -24,7 +24,7 @@ def read_and_partition_data():
     T = []
     nrows = len(train_annotations['annotations'][0])
 
-    for i in range(nRows):
+    for i in range(nrows):
         location = train_annotations['annotations'][0, i][4][0][0]
         class_name = meta['class_names'][0, location - 1]
         T.append(class_name)
