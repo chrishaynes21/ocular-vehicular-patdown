@@ -44,3 +44,30 @@ def read_and_partition_data():
     Ttest = T[testIndices, :]
 
     return Xtrain, Ttrain, Xtest, Ttest
+
+def select_target_class(target, T):
+    '''
+    :param target: Desired target class to use ('Make', 'Type', or 'Decade')
+    :param T: Target Matrix
+    :return:  Updated Target matrix with just the desired class
+
+    Updates the target matrix using only the desired class for each sample
+    '''
+
+    for class_name in T:
+        words = class_name[0].split()
+
+        if target == 'Make':
+            class_name[0] = words[0]
+
+        if target == 'Type':
+            class_name[0] = words[-2]
+
+        if target == 'Decade':
+            year = int(words[-1])
+            century = (int(year / 100)) * 100
+            year_in_century = year % 100
+            decade = century + (int(year_in_century / 10) * 10)
+            class_name[0] = str(decade)
+
+    return T
