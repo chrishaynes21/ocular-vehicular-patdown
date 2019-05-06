@@ -18,14 +18,25 @@ class Loader extends React.Component {
         this.setState({file: e.target.files[0]});
     }
 
+    handleErrors(response) {
+        if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response;
+    }
+
     submitImage() {
         const imageData = new FormData();
         imageData.append('file', this.state.file);
 
         fetch(`http://127.0.0.1:5000/upload`, {
+            mode: 'cors',
             method: 'POST',
             body: imageData,
-        }).then((res) => console.log(res));
+        })
+            .then((response) => this.handleErrors(response))
+            .then((res) => console.log(res))
+            .catch((error) => console.log(error));
     }
 
     render() {
