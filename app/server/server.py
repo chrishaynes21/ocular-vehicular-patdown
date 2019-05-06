@@ -31,5 +31,15 @@ def upload():
     return jsonify(filename)
 
 
+@app.route('/classification', methods=['GET'])
+@cross_origin()
+def get_classification():
+    file_name = request.args.get('fileName')
+    classification = request.args.get('classification')
+    logger.info('File: ' + file_name + ' Classification: ' + classification)
+    # TODO: Add code to call network and get actual classification
+    return jsonify('1960')
+
+
 if __name__ == "__main__":
     app.run()

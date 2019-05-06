@@ -7,7 +7,8 @@ class Loader extends React.Component {
         this.state = {
             activeButton: null,
             file: null,
-            fileGetter: null
+            loading: true,
+            classification: undefined
         };
 
         this.handleTypeChange = this.handleTypeChange.bind(this);
@@ -33,16 +34,44 @@ class Loader extends React.Component {
         const imageData = new FormData();
         imageData.append('file', this.state.file);
 
-        fetch(`http://127.0.0.1:5000/upload`, {
+        if (this.state.activeButton) {
+            fetch(`http://127.0.0.1:5000/upload`, {
+                mode: 'cors',
+                method: 'POST',
+                body: imageData,
+            })
+                .then((response) => this.handleErrors(response))
+                .then((response) => {
+                    response.json().then((fileName) => {
+                        this.setState({
+                            fileGetter: fileName,
+                        });
+                        this.getClassification(fileName);
+                    })
+                })
+                .catch((error) => console.log(error));
+        } else {
+            alert('Classification must be chosen before submitting.')
+        }
+    }
+
+    getClassification(fileName) {
+        const requestObject = {
+            fileName: fileName,
+            classification: this.state.activeButton
+        };
+        const query = Object.keys(requestObject).map(key => key + '=' + requestObject[key]).join('&');
+        fetch('http://127.0.0.1:5000/classification?' + query, {
             mode: 'cors',
-            method: 'POST',
-            body: imageData,
+            method: 'GET',
         })
             .then((response) => this.handleErrors(response))
             .then((response) => {
-                response.json().then((fileName) => {
+                response.json().then((classification) => {
+                    console.log(classification);
                     this.setState({
-                        fileGetter: fileName
+                        loading: false,
+                        classification: classification,
                     });
                 })
             })
@@ -58,56 +87,68 @@ class Loader extends React.Component {
                             <Row style={{marginBottom: '25px'}}>
                                 <Button color={this.state.activeButton === 'decade' ? 'primary' : 'secondary'}
                                         size={'lg'}
-                                        block onClick={() => this.handleTypeChange('decade')}>
+                                        block onClick={() => this.handleTypeChange('decade')}
+                                        disabled={!this.state.loading}>
                                     Decade
                                 </Button>
                             </Row>
                             <Row style={{marginBottom: '25px'}}>
                                 <Button color={this.state.activeButton === 'bodystyle' ? 'primary' : 'secondary'}
                                         size={'lg'}
-                                        block onClick={() => this.handleTypeChange('bodystyle')}>
+                                        block onClick={() => this.handleTypeChange('bodystyle')}
+                                        disabled={!this.state.loading}>
                                     Body Style
                                 </Button>
                             </Row>
                             <Row style={{marginBottom: '25px'}}>
-                                <Button color={this.state.activeButton === 'price' ? 'primary' : 'secondary'}
+                                <Button color={this.state.activeButton === 'make' ? 'primary' : 'secondary'}
                                         size={'lg'}
-                                        block onClick={() => this.handleTypeChange('price')}>
-                                    Price
+                                        block onClick={() => this.handleTypeChange('make')}
+                                        disabled={!this.state.loading}>
+                                    Make
                                 </Button>
                             </Row>
                         </Col>
-                        <Col>
-                            <Row>
-                                <Form>
-                                    <FormGroup row>
-                                        <Input type="file" name="image" id="classifyImage"
-                                               onChange={(event) => this.fileChanged(event)}/>
-                                        <FormText color="muted">
-                                            Select an image to classify!
-                                        </FormText>
-                                    </FormGroup>
-                                </Form>
-                            </Row>
-                            <Row>
-                                <Button className="float-left" color={this.state.file ? 'success' : 'secondary'}
-                                        disabled={!this.state.file} onClick={this.submitImage}>
-                                    Submit
-                                </Button>
-                            </Row>
-                        </Col>
-                        {this.state.file ? (
+                        {this.state.loading ?
+                            <Col>
+                                <Row>
+                                    <Form>
+                                        <FormGroup row>
+                                            <Input type="file" name="image" id="classifyImage"
+                                                   onChange={(event) => this.fileChanged(event)}/>
+                                            <FormText color="muted">
+                                                Select an image to classify!
+                                            </FormText>
+                                        </FormGroup>
+                                    </Form>
+                                </Row>
+                                <Row>
+                                    <Button className="float-left" color={this.state.file ? 'success' : 'secondary'}
+                                            disabled={!this.state.file} onClick={this.submitImage}>
+                                        Submit
+                                    </Button>
+                                </Row>
+                            </Col>
+                            : <Col style={{textAlign: 'center'}}>
+                                <h4>{this.state.activeButton.charAt(0).toUpperCase() + this.state.activeButton.slice(1)}</h4>
+                                <br/>
+                                <p className='display-3'>{this.state.classification}</p>
+                            </Col>
+                        }
+                        {this.state.file ?
                             <Col>
                                 <img style={{maxWidth: '75%'}}
                                      src={URL.createObjectURL(this.state.file)}
                                      alt='Hopefully a car'/>
                             </Col>
-                        ) : undefined}
+                            : undefined
+                        }
                     </Row>
                 </Container>
             </div>
         )
-    };
+    }
+    ;
 }
 
 export default Loader;
