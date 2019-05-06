@@ -49,7 +49,7 @@ class Loader extends React.Component {
                         this.getClassification(fileName);
                     })
                 })
-                .catch((error) => console.log(error));
+                .catch(() => alert('An error occurred, are you sure your image is a .JPG or .JPEG?'));
         } else {
             alert('Classification must be chosen before submitting.')
         }
@@ -117,7 +117,7 @@ class Loader extends React.Component {
                                             <Input type="file" name="image" id="classifyImage"
                                                    onChange={(event) => this.fileChanged(event)}/>
                                             <FormText color="muted">
-                                                Select an image to classify!
+                                                Select a .JPG or .JPEG to classify!
                                             </FormText>
                                         </FormGroup>
                                     </Form>
