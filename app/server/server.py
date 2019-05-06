@@ -2,7 +2,7 @@ import logging
 import os
 
 from flask import Flask, request, jsonify
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 from werkzeug.utils import secure_filename
 
 logging.basicConfig(level=logging.INFO)
@@ -14,10 +14,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 UPLOAD_FOLDER = os.path.basename('uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route("/upload", methods=['POST'])
-@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
+@cross_origin()
 def upload():
     target = UPLOAD_FOLDER
     if not os.path.isdir(target):
@@ -27,7 +28,7 @@ def upload():
     destination = "/".join([target, filename])
     image.save(destination)
     logger.info('File Saved: ' + filename)
-    return jsonify(success=True)
+    return jsonify(filename)
 
 
 if __name__ == "__main__":

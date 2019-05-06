@@ -4,7 +4,11 @@ import {Button, Col, Container, Form, FormGroup, FormText, Input, Row} from 'rea
 class Loader extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {activeButton: null, file: null}
+        this.state = {
+            activeButton: null,
+            file: null,
+            fileGetter: null
+        };
 
         this.handleTypeChange = this.handleTypeChange.bind(this);
         this.submitImage = this.submitImage.bind(this);
@@ -20,9 +24,9 @@ class Loader extends React.Component {
 
     handleErrors(response) {
         if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                return response;
+            throw Error(response.statusText);
+        }
+        return response;
     }
 
     submitImage() {
@@ -35,7 +39,13 @@ class Loader extends React.Component {
             body: imageData,
         })
             .then((response) => this.handleErrors(response))
-            .then((res) => console.log(res))
+            .then((response) => {
+                response.json().then((fileName) => {
+                    this.setState({
+                        fileGetter: fileName
+                    });
+                })
+            })
             .catch((error) => console.log(error));
     }
 
