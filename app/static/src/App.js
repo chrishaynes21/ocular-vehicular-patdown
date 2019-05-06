@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import './App.css';
 import Jumbo from "./Jumbo";
 import TopNav from "./Nav";
 import Loader from "./Loader";
