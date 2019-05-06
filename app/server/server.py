@@ -1,15 +1,33 @@
-# server.py
-from flask import Flask, render_template
+import os
+import logging
 
-app = Flask(__name__, static_folder="../static/dist", template_folder="../static")
+from flask import Flask, request
+from werkzeug.utils import secure_filename
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+logging.basicConfig(level=logging.INFO)
 
-@app.route("/hello")
-def hello():
-    return "Hello World!"
+logger = logging.getLogger('OVP')
+
+app = Flask(__name__)
+
+UPLOAD_FOLDER = os.path.basename('uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+@app.route("/upload", methods=['POST'])
+def upload():
+    target = UPLOAD_FOLDER
+    logger.info(target)
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    logger.info('Inside upload')
+    image = request.files['file']
+    filename = secure_filename(image.filename)
+    destination = "/".join([target, filename])
+    image.save(destination)
+    response = 'We did it'
+    return response
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
