@@ -48,7 +48,8 @@ def upload():
 def get_classification():
     file_name = request.args.get('fileName')
     classification = request.args.get('classification')
-    logger.info('File: ' + file_name + ' Classification: ' + classification)
+    logger.info('Classification: ' + classification + 'File: ' + file_name)
+    file_path = os.path.join(UPLOAD_FOLDER, file_name)
     # TODO: Add code to call network and get actual classification
     return jsonify('1960')
 
