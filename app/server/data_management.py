@@ -1,7 +1,7 @@
 import scipy.io
 import numpy as np
 
-def read_and_partition_data(meta_data_directory = "../../car_devkit/devkit/"):
+def read_and_partition_data(meta_data_directory = "../../car_devkit/devkit/", seed = 0):
     '''
     :return: Xtrain, Xtest, Ttrain, Ttest
 
@@ -37,6 +37,10 @@ def read_and_partition_data(meta_data_directory = "../../car_devkit/devkit/"):
 
     # Fix the samples without vehicle types, giving them an appropriate type
     T = fix_vehicle_type_specials(T)
+
+    #set the seed if it is not zero.
+    if seed:
+        np.random.seed(seed)
 
     # Partition the data into training and testing sets
     nTrain = int(round(nrows * 0.8))
