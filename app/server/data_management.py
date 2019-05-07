@@ -32,7 +32,7 @@ def read_and_partition_data():
     for i in range(nrows):
         location = train_annotations['annotations'][0, i][4][0][0]
         class_name = meta['class_names'][0, location - 1]
-        T.append(class_name)
+        T.append(class_name[0])
 
     T = np.array(T)
 
@@ -63,20 +63,20 @@ def select_target_class(target, T):
     '''
 
     for class_name in T:
-        words = class_name[0].split()
+        words = class_name.split()
 
         if target == 'Make':
-            class_name[0] = words[0]
+            class_name = words[0]
 
         if target == 'Type':
-            class_name[0] = words[-2]
+            class_name = words[-2]
 
         if target == 'Decade':
             year = int(words[-1])
             century = (int(year / 100)) * 100
             year_in_century = year % 100
             decade = century + (int(year_in_century / 10) * 10)
-            class_name[0] = str(decade)
+            class_name = str(decade)
             
 def fix_vehicle_type_specials(T):
     '''
@@ -87,53 +87,56 @@ def fix_vehicle_type_specials(T):
     a class. These 16  types are seen in the nasty if/else block below
     '''
 
-    specials = []
     types = ['Cab', 'Sedan', 'Minivan', 'Van', 'Coupe', 'Convertible', 'Wagon', 'Hatchback', 'SUV', ]
+    T_new = np.empty([T.shape[0], 3], dtype=T.dtype)
 
+    i = 0
     for class_name in T:
-        words = class_name[0].split()
+        words = class_name.split()
         type = words[-2]
 
         # Change type from 'Cab' to 'Truck' for clarity
         if type == 'Cab':
             words.insert(-1, 'Truck')
-            class_name[0] = ' '.join(words)
 
         # For each special case, add the true vehicle type
         if type not in types:
-            if class_name[0] == 'Chevrolet Corvette ZR1 2012':
+            if class_name == 'Chevrolet Corvette ZR1 2012':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Buick Regal GS 2012':
+            if class_name == 'Buick Regal GS 2012':
                 words.insert(-1, 'Sedan')
-            if class_name[0] == 'Dodge Charger SRT-8 2009':
+            if class_name == 'Dodge Charger SRT-8 2009':
                 words.insert(-1, 'Sedan')
-            if class_name[0] == 'Acura TL Type-S 2008':
+            if class_name == 'Acura TL Type-S 2008':
                 words.insert(-1, 'Sedan')
-            if class_name[0] == 'Jaguar XK XKR 2012':
+            if class_name == 'Jaguar XK XKR 2012':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Chevrolet HHR SS 2010':
+            if class_name == 'Chevrolet HHR SS 2010':
                 words.insert(-1, 'Wagon')
-            if class_name[0] == 'Lamborghini Gallardo LP 570-4 Superleggera 2012':
+            if class_name == 'Lamborghini Gallardo LP 570-4 Superleggera 2012':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Chevrolet TrailBlazer SS 2009':
+            if class_name == 'Chevrolet TrailBlazer SS 2009':
                 words.insert(-1, 'SUV')
-            if class_name[0] == 'Chevrolet Corvette Ron Fellows Edition Z06 2007':
+            if class_name == 'Chevrolet Corvette Ron Fellows Edition Z06 2007':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Chrysler 300 SRT-8 2010':
+            if class_name == 'Chrysler 300 SRT-8 2010':
                 words.insert(-1, 'Sedan')
-            if class_name[0] == 'FIAT 500 Abarth 2012':
+            if class_name == 'FIAT 500 Abarth 2012':
                 words.insert(-1, 'Hatchback')
-            if class_name[0] == 'Ford Ranger SuperCab 2011':
+            if class_name == 'Ford Ranger SuperCab 2011':
                 words.insert(-1, 'Truck')
-            if class_name[0] == 'Chevrolet Cobalt SS 2010':
+            if class_name == 'Chevrolet Cobalt SS 2010':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Infiniti G Coupe IPL 2012':
+            if class_name == 'Infiniti G Coupe IPL 2012':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Dodge Challenger SRT8 2011':
+            if class_name == 'Dodge Challenger SRT8 2011':
                 words.insert(-1, 'Coupe')
-            if class_name[0] == 'Acura Integra Type R 2001':
+            if class_name == 'Acura Integra Type R 2001':
                 words.insert(-1, 'Coupe')
 
-            class_name[0] = ' '.join(words)
+        # Remove everything in string leaving it as '<Make> <Type> <Year>'
+        targets = np.array([words[0], words[-2], words[-1]]).reshape((1, 3))
+        T_new[i, :] = targets[:, :]
+        i += 1
 
-    return T
+    return T_new
