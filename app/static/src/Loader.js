@@ -13,6 +13,7 @@ class Loader extends React.Component {
 
         this.handleTypeChange = this.handleTypeChange.bind(this);
         this.submitImage = this.submitImage.bind(this);
+        this.resetLoader = this.resetLoader.bind(this);
     }
 
     handleTypeChange(activeButton) {
@@ -23,7 +24,7 @@ class Loader extends React.Component {
         this.setState({file: e.target.files[0]});
     }
 
-    handleErrors(response) {
+    static handleErrors(response) {
         if (!response.ok) {
             throw Error(response.statusText);
         }
@@ -40,7 +41,7 @@ class Loader extends React.Component {
                 method: 'POST',
                 body: imageData,
             })
-                .then((response) => this.handleErrors(response))
+                .then((response) => Loader.handleErrors(response))
                 .then((response) => {
                     response.json().then((fileName) => {
                         this.setState({
@@ -65,7 +66,7 @@ class Loader extends React.Component {
             mode: 'cors',
             method: 'GET',
         })
-            .then((response) => this.handleErrors(response))
+            .then((response) => Loader.handleErrors(response))
             .then((response) => {
                 response.json().then((classification) => {
                     console.log(classification);
@@ -76,6 +77,13 @@ class Loader extends React.Component {
                 })
             })
             .catch((error) => console.log(error));
+    }
+
+    resetLoader() {
+        this.setState({
+            loading: 'true',
+            file: null
+        })
     }
 
     render() {
@@ -133,6 +141,7 @@ class Loader extends React.Component {
                                 <h4>{this.state.activeButton.charAt(0).toUpperCase() + this.state.activeButton.slice(1)}</h4>
                                 <br/>
                                 <p className='display-3'>{this.state.classification}</p>
+                                <Button color='danger' onClick={this.resetLoader}>Reset</Button>
                             </Col>
                         }
                         {this.state.file ?
