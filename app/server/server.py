@@ -1,10 +1,14 @@
 import logging
 import os
+import pickle
 
+import image_processing
+import data_management
+import torch
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin, CORS
-from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequest
+from werkzeug.utils import secure_filename
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('OVP')
@@ -33,7 +37,6 @@ def upload():
     image = request.files['file']
     filename = secure_filename(image.filename)
     file_is_allowed = allowed_file(filename)
-    logger.info('File is allowed: ' + str(file_is_allowed))
     if file_is_allowed:
         destination = "/".join([target, filename])
         image.save(destination)
@@ -50,9 +53,29 @@ def get_classification():
     classification = request.args.get('classification')
     logger.info('Classification: ' + classification + 'File: ' + file_name)
     file_path = os.path.join(UPLOAD_FOLDER, file_name)
-    # TODO: Add code to call network and get actual classification
-    return jsonify('1960')
+    classification = classify_image(file_path, classification)
+    return jsonify(classification)
+
+
+def classify_image(file_path, classification):
+    print('File: ' + file_path + '| Classification: ' + classification)
+    if classification == 'decade':
+        image_as_np = image_processing.image_to_numpy(file_path, 55, 110)
+        file = open('./nnet/decade_nnet', 'rb')
+        nnet = pickle.load(file)
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
+    elif classification == 'bodystyle':
+        image_as_np = image_processing.image_to_numpy(file_path, 55, 110)
+        file = open('./nnet/bodystyle_nnet', 'rb')
+        nnet = pickle.load(file)
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
+    elif classification == 'make':
+        image_as_np = image_processing.image_to_numpy(file_path, 165, 330)
+        file = open('./nnet/make_nnet', 'rb')
+        nnet = pickle.load(file)
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
+    return 'An Error Occurred'
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='192.168.1.117', port='41331')

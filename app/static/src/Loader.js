@@ -36,7 +36,7 @@ class Loader extends React.Component {
         imageData.append('file', this.state.file);
 
         if (this.state.activeButton) {
-            fetch(`http://127.0.0.1:5000/upload`, {
+            fetch(`http://192.168.1.117:41331/upload`, {
                 mode: 'cors',
                 method: 'POST',
                 body: imageData,
@@ -62,7 +62,7 @@ class Loader extends React.Component {
             classification: this.state.activeButton
         };
         const query = Object.keys(requestObject).map(key => key + '=' + requestObject[key]).join('&');
-        fetch('http://127.0.0.1:5000/classification?' + query, {
+        fetch('http://192.168.1.117:41331/classification?' + query, {
             mode: 'cors',
             method: 'GET',
         })
@@ -82,7 +82,6 @@ class Loader extends React.Component {
     resetLoader() {
         this.setState({
             loading: 'true',
-            file: null
         })
     }
 
