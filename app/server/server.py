@@ -1,7 +1,9 @@
 import logging
 import os
+import pickle
 
 import image_processing
+import torch
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin, CORS
 from werkzeug.exceptions import BadRequest
@@ -56,8 +58,19 @@ def get_classification():
 
 
 def classify_image(file_path, classification):
-    image_as_np = image_processing.image_to_numpy(file_path)
-    return '1960'
+    print('File: ' + file_path + '| Classification: ' + classification)
+    if classification == 'decade':
+        image_as_np = image_processing.image_to_numpy(file_path, 55, 110)
+        file = open('./nnet/decade_nnet', 'rb')
+        nnet = pickle.load(file)
+        return nnet.use(image_as_np)[0].tolist()
+    elif classification == 'make':
+        image_as_np = image_processing.image_to_numpy(file_path, 165, 330)
+        file = open('./nnet/make_nnet', 'rb')
+        nnet = pickle.load(file)
+        return nnet.use(image_as_np)[0].tolist()
+    else:
+        return 'An Error Occurred'
 
 
 if __name__ == "__main__":
