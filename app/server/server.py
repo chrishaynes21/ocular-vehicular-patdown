@@ -1,10 +1,11 @@
 import logging
 import os
 
+import image_processing
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin, CORS
-from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequest
+from werkzeug.utils import secure_filename
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('OVP')
@@ -50,8 +51,13 @@ def get_classification():
     classification = request.args.get('classification')
     logger.info('Classification: ' + classification + 'File: ' + file_name)
     file_path = os.path.join(UPLOAD_FOLDER, file_name)
-    # TODO: Add code to call network and get actual classification
-    return jsonify('1960')
+    classification = classify_image(file_path, classification)
+    return jsonify(classification)
+
+
+def classify_image(file_path, classification):
+    image_as_np = image_processing.image_to_numpy(file_path)
+    return '1960'
 
 
 if __name__ == "__main__":
