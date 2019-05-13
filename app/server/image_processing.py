@@ -71,8 +71,12 @@ def image_to_numpy(input_image_filepath, height = 275, width = 550):
     # pad it to the average h and w from above
     jpeg_image = tf.image.resize_with_pad(jpeg_image, height, width, antialias=True)
 
-    return jpeg_image.numpy().astype(np.uint8)  # <--- maybe a setable parameter?
+    jpeg_image = jpeg_image.numpy().astype(np.uint8)  # <--- maybe a setable parameter?
 
+    jpeg_image = np.rollaxis(jpeg_image, -1, 0)
+    jpeg_image = np.expand_dims(jpeg_image, axis=0)
+    
+    return jpeg_image
 def make_array_splits(array_length, binsize):
     # Utility function for making batches
 
