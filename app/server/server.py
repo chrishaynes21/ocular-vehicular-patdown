@@ -3,6 +3,7 @@ import os
 import pickle
 
 import image_processing
+import data_management
 import torch
 from flask import Flask, request, jsonify
 from flask_cors import cross_origin, CORS
@@ -36,7 +37,6 @@ def upload():
     image = request.files['file']
     filename = secure_filename(image.filename)
     file_is_allowed = allowed_file(filename)
-    logger.info('File is allowed: ' + str(file_is_allowed))
     if file_is_allowed:
         destination = "/".join([target, filename])
         image.save(destination)
@@ -63,15 +63,19 @@ def classify_image(file_path, classification):
         image_as_np = image_processing.image_to_numpy(file_path, 55, 110)
         file = open('./nnet/decade_nnet', 'rb')
         nnet = pickle.load(file)
-        return nnet.use(image_as_np)[0].tolist()
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
+    elif classification == 'bodystyle':
+        image_as_np = image_processing.image_to_numpy(file_path, 55, 110)
+        file = open('./nnet/bodystyle_nnet', 'rb')
+        nnet = pickle.load(file)
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
     elif classification == 'make':
         image_as_np = image_processing.image_to_numpy(file_path, 165, 330)
         file = open('./nnet/make_nnet', 'rb')
         nnet = pickle.load(file)
-        return nnet.use(image_as_np)[0].tolist()
-    else:
-        return 'An Error Occurred'
+        return data_management.get_classname(nnet.use(image_as_np)[0].tolist()[0], classification)
+    return 'An Error Occurred'
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='192.168.1.117', port='41331')
