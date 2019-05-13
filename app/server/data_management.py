@@ -143,3 +143,31 @@ def fix_vehicle_type_specials(T):
         i += 1
 
     return T_new
+
+def get_classname(class_int, classification_type):
+
+    if classification_type == "bodystyle":
+        #declare hardcoded array
+        body_styles = ['Convertible', 'Coupe', 'Hatchback', 'Minivan', 'SUV', 'Sedan',
+        'Truck', 'Van', 'Wagon']
+        return body_styles[class_int]
+        
+    elif classification_type == "make":
+        makes = ['AM', 'Acura', 'Aston', 'Audi', 'BMW', 'Bentley', 'Bugatti',
+        'Buick', 'Cadillac', 'Chevrolet', 'Chrysler', 'Daewoo', 'Dodge',
+        'Eagle', 'FIAT', 'Ferrari', 'Fisker', 'Ford', 'GMC', 'Geo',
+        'HUMMER', 'Honda', 'Hyundai', 'Infiniti', 'Isuzu', 'Jaguar',
+        'Jeep', 'Lamborghini', 'Land', 'Lincoln', 'MINI', 'Maybach',
+        'Mazda', 'McLaren', 'Mercedes-Benz', 'Mitsubishi', 'Nissan',
+        'Plymouth', 'Porsche', 'Ram', 'Rolls-Royce', 'Scion', 'Spyker',
+        'Suzuki', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo', 'smart']
+        return makes[class_int]
+    
+    elif classification_type == 'decade':
+        #classify decade
+        decades = ["1990's", "2000's", "2010's"]
+        return decades[class_int]
+    
+    else:
+        return 'invalid classification type'
+
