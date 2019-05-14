@@ -31,12 +31,13 @@ class Loader extends React.Component {
         return response;
     }
 
+    // Submit the image uploaded to the server. Then call getClassification()
     submitImage() {
         const imageData = new FormData();
         imageData.append('file', this.state.file);
 
         if (this.state.activeButton) {
-            fetch(`http://192.168.1.117:41331/upload`, {
+            fetch(`http://127.0.0.1:5000/upload`, {
                 mode: 'cors',
                 method: 'POST',
                 body: imageData,
@@ -56,13 +57,14 @@ class Loader extends React.Component {
         }
     }
 
+    // Get the classification back and display it on the web page
     getClassification(fileName) {
         const requestObject = {
             fileName: fileName,
             classification: this.state.activeButton
         };
         const query = Object.keys(requestObject).map(key => key + '=' + requestObject[key]).join('&');
-        fetch('http://192.168.1.117:41331/classification?' + query, {
+        fetch('http://127.0.0.1:5000/classification?' + query, {
             mode: 'cors',
             method: 'GET',
         })
