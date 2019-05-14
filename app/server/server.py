@@ -10,24 +10,23 @@ from flask_cors import cross_origin, CORS
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import secure_filename
 
+# Set logging info
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('OVP')
 
+# Create the app API
 app = Flask(__name__)
 app.config['SECRET KEY'] = os.urandom(24)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# Set configs such as CORS and Upload folder
 UPLOAD_FOLDER = os.path.basename('uploads')
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-def allowed_file(filename):
-    logger.info('.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS)
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
+# API to upload the image, accepts a FormData body with a file
 @app.route("/upload", methods=['POST'])
 @cross_origin()
 def upload():
@@ -46,6 +45,7 @@ def upload():
         return BadRequest('File must be .JPG or .JPEG')
 
 
+# API to classify an image, takes a filename and classification in the query string
 @app.route('/classification', methods=['GET'])
 @cross_origin()
 def get_classification():
@@ -57,6 +57,15 @@ def get_classification():
     return jsonify(classification)
 
 
+# Function to check if a file is allowed
+def allowed_file(filename):
+    logger.info('.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS)
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# Function to classify an image in the filepath
+# Must first convert the image to numpy, then open the nnet,
+# then classify and get the classification string name
 def classify_image(file_path, classification):
     print('File: ' + file_path + '| Classification: ' + classification)
     if classification == 'decade':
@@ -78,4 +87,4 @@ def classify_image(file_path, classification):
 
 
 if __name__ == "__main__":
-    app.run(host='192.168.1.117', port='41331')
+    app.run()
